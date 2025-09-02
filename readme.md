@@ -7,9 +7,9 @@ Doraemon is an optimization tool, made to optimize your Github-Actions CI workfl
 
 ## Architecture
 There are five microservices in total :
-1 - Webhook Ingestion Service
-2 - Analysis Engine
-3 - Graph Service
-4 - CI Dispatcher Service
-5 - UI
+- Webhook Ingestion Service
+- Analysis Engine
+- Graph Service
+- CI Dispatcher Service
+- UI
 
