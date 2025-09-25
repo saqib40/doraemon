@@ -1,22 +1,27 @@
 import axios from 'axios';
-import type { GraphData } from '../types/types';
+import type { GraphData, Node } from '../types/types';
 
-
-const API_URL = 'http://localhost:4000';
+const API_BASE_URL = 'http://localhost:4000';
 
 
 export const analyzeRepo = async (repoUrl: string): Promise<GraphData> => {
-  try {
-    const response = await axios.post<GraphData>(`${API_URL}/analyze`, {
-      repoUrl,
-    });
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("API Error:", error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || 'Failed to analyze repository. Check the server logs.');
-    }
-    console.error("Unexpected Error:", error);
-    throw new Error('An unexpected error occurred.');
-  }
+  const response = await axios.post(`${API_BASE_URL}/analyze`, { repoUrl });
+  return response.data;
 };
+
+// Fetches the dependents for a specific file (i.e., all files that import it).
+export const fetchDependents = async (repoName: string, filePath: string): Promise<Node[]> => {
+  const response = await axios.get(`${API_BASE_URL}/files/${repoName}/dependents`, {
+    params: { filePath },
+  });
+  return response.data;
+};
+
+// Fetches the dependencies for a specific file (i.e., all files it imports).
+export const fetchDependencies = async (repoName: string, filePath: string): Promise<Node[]> => {
+  const response = await axios.get(`${API_BASE_URL}/files/${repoName}/dependencies`, {
+    params: { filePath },
+  });
+  return response.data;
+};
+

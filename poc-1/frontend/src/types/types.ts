@@ -1,6 +1,6 @@
 export interface Node {
   id: string;
-  label: string;
+  label: string; // name property
 }
 
 export interface Edge {
