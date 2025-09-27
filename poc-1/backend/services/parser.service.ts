@@ -31,9 +31,25 @@ export const analyzeAndStoreGraph = async (directoryPath: string, repoName: stri
 
   const session = getSession();
   try {
+    const constraintsResult = await session.run(`
+      SHOW CONSTRAINTS YIELD name, labelsOrTypes, properties
+      WHERE 'File' IN labelsOrTypes
+      RETURN name, properties
+    `);
+
+    // 2. Find and drop the old, incorrect single-property constraint if it exists.
+    for (const record of constraintsResult.records) {
+      const constraintName = record.get('name');
+      const properties = record.get('properties');
+      if (properties.length === 1 && properties[0] === 'id') {
+        console.log(`[DB] Found legacy constraint '${constraintName}'. Dropping it.`);
+        await session.run(`DROP CONSTRAINT \`${constraintName}\``);
+      }
+    }
     // This constraint is correct and very important for performance.
-    // Using the newer 'FOR...REQUIRE' syntax is slightly more modern.
-    await session.run('CREATE CONSTRAINT IF NOT EXISTS FOR (f:File) REQUIRE f.id IS UNIQUE');
+    // indexing concept of dbs
+    // makes lookup from O(n) to O(logn) approx O(1)
+    await session.run('CREATE CONSTRAINT IF NOT EXISTS FOR (f:File) REQUIRE (f.id, f.repo) IS UNIQUE');
 
     const sourceFiles = project.getSourceFiles();
 
@@ -60,7 +76,7 @@ export const analyzeAndStoreGraph = async (directoryPath: string, repoName: stri
               const importedRelativePath = path.relative(directoryPath, importedFilePath);
               const importedFileName = path.basename(importedRelativePath);
 
-              // --- BUG #2 FIX: Use MERGE for both nodes before creating the relationship ---
+              // Use MERGE for both nodes before creating the relationship ---
               // This query ensures that both the source and target nodes exist before
               // attempting to create the relationship between them, solving the race condition.
               await session.run(

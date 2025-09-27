@@ -52,11 +52,15 @@ const App: React.FC = () => {
     try {
       const searchFn = direction === 'dependencies' ? fetchDependencies : fetchDependents;
       const results = await searchFn(repoName, searchFilePath);
-
-      // Create a new mini-graph from the search results
+      // ensure every node in final list is unique by id
+      // will prevent errors of rendering especially in cycles
       const centralNode: Node = { id: searchFilePath, label: searchFilePath.split('/').pop()! };
-      const resultNodes: Node[] = results.map(file => ({ id: file.id, label: file.label! }));
-      const nodes = [centralNode, ...resultNodes];
+      const allNodesMap = new Map<string, Node>();
+      allNodesMap.set(centralNode.id, centralNode);
+      results.forEach(file => {
+        allNodesMap.set(file.id, file);
+      });
+      const nodes = Array.from(allNodesMap.values());
       const edges = results.map(file => ({
         from: direction === 'dependencies' ? centralNode.id : file.id,
         to: direction === 'dependencies' ? file.id : centralNode.id,
@@ -68,6 +72,10 @@ const App: React.FC = () => {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleNodeSelection = (filePath: string) => {
+  setSearchFilePath(filePath);
   };
 
   return (
@@ -101,7 +109,7 @@ const App: React.FC = () => {
           <h2 className="text-xl font-bold text-white mb-4">Full Repository Graph</h2>
           {isLoading && <p>Loading graph...</p>}
           {error && <p className="text-red-400">{error}</p>}
-          {mainGraphData && <GraphComponent graphData={mainGraphData} />}
+          {mainGraphData && <GraphComponent graphData={mainGraphData} onNodeClick={handleNodeSelection} />}
         </div>
 
         {/* Search Panel */}
@@ -114,7 +122,7 @@ const App: React.FC = () => {
                   type="text"
                   value={searchFilePath}
                   onChange={(e) => setSearchFilePath(e.target.value)}
-                  placeholder="Enter a file path to inspect..."
+                  placeholder="Click a node or enter a file path..."
                   className="w-full bg-[#40444b] border border-[#202225] rounded-md p-3"
                   disabled={isSearching}
                 />
@@ -131,7 +139,7 @@ const App: React.FC = () => {
               <div className="mt-4 flex-grow relative">
                 {isSearching && <p>Searching...</p>}
                 {searchError && <p className="text-red-400">{searchError}</p>}
-                {searchResultData && <GraphComponent graphData={searchResultData} />}
+                {searchResultData && <GraphComponent graphData={searchResultData} onNodeClick={handleNodeSelection} />}
               </div>
             </>
           ) : (

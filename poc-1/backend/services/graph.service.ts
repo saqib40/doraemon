@@ -47,10 +47,14 @@ export const findDependencies = async (repoName: string, filePath: string) => {
     const session = getSession();
     try {
         const result = await session.run(
-            `MATCH (:File {id: $filePath, repo: $repoName})-[:IMPORTS]->(dependency:File) RETURN dependency`,
+            `MATCH (:File {id: $filePath, repo: $repoName})-[:IMPORTS]->(d:File)
+             RETURN d.id AS id, d.name AS label`,
             { filePath, repoName }
         );
-        return result.records.map(record => record.get('dependency').properties);
+        return result.records.map(record => ({
+          id: record.get('id'),
+          label: record.get('label'),
+        }));
     } finally {
         await session.close();
     }
@@ -61,10 +65,14 @@ export const findDependents = async (repoName: string, filePath: string) => {
     const session = getSession();
     try {
         const result = await session.run(
-            `MATCH (dependent:File)-[:IMPORTS]->(:File {id: $filePath, repo: $repoName}) RETURN dependent`,
+            `MATCH (d:File)-[:IMPORTS]->(:File {id: $filePath, repo: $repoName})
+             RETURN d.id AS id, d.name AS label`,
             { filePath, repoName }
         );
-        return result.records.map(record => record.get('dependent').properties);
+        return result.records.map(record => ({
+          id: record.get('id'),
+          label: record.get('label'),
+        }));
     } finally {
         await session.close();
     }

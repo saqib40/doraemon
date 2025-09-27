@@ -15,4 +15,5 @@ export interface GraphData {
 
 export interface GraphComponentProps {
   graphData: GraphData;
+  onNodeClick: (nodeId: string) => void; // A function that receives the clicked node's ID
 }

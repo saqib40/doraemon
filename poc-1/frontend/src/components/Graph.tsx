@@ -4,7 +4,7 @@ import type { Options } from 'vis-network';
 import type { GraphComponentProps } from '../types/types';
 
 
-const GraphComponent: React.FC<GraphComponentProps> = ({ graphData }) => {
+const GraphComponent: React.FC<GraphComponentProps> = ({ graphData, onNodeClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ const GraphComponent: React.FC<GraphComponentProps> = ({ graphData }) => {
       if (isLargeGraph) {
         options = {
           layout: { improvedLayout: false },
-          nodes: { shape: 'dot', size: 8 },
+          nodes: { shape: 'dot', size: 8, font: { size: 10, color: '#b9bbbe' } },
           edges: { width: 0.5, arrows: { to: { enabled: false } } },
           physics: { enabled: true, solver: 'barnesHut', stabilization: { enabled: false } },
           interaction: { hover: true, tooltipDelay: 200 },
@@ -51,6 +51,18 @@ const GraphComponent: React.FC<GraphComponentProps> = ({ graphData }) => {
           network.setOptions({ physics: false });
         });
       }
+
+      network.on('click', (properties) => {
+        // The 'properties' object contains information about the click event
+        const clickedNodeIds = properties.nodes;
+        // If the user clicked on a node (and not on empty space)
+        if (clickedNodeIds.length > 0) {
+          const firstNodeId = clickedNodeIds[0];
+          console.log(`Node clicked: ${firstNodeId}`);
+          // Call the function passed down from the parent App component
+          onNodeClick(firstNodeId);
+        }
+      });
 
       return () => { network.destroy(); };
     }
