@@ -77,3 +77,59 @@ export const findDependents = async (repoName: string, filePath: string) => {
         await session.close();
     }
 };
+
+// Finds all files that recursively import a given file (the entire chain of dependents).
+export const findRecursiveDependents = async (repoName: string, filePath: string) => {
+    const session = getSession();
+    try {
+        // -[:IMPORTS*]-> is the variable-length path match (1 or more relationships).
+        // This is what makes the query recursive.
+        // DISTINCT ensures each file is only returned once, even if it's a dependent
+        // via multiple paths. This inherently handles cycles.
+        const result = await session.run(
+            `MATCH (dependent:File)-[:IMPORTS*]->(:File {id: $filePath, repo: $repoName})
+             RETURN DISTINCT dependent.id AS id, dependent.name AS label`,
+            { filePath, repoName }
+        );
+
+        return result.records.map(record => ({
+            id: record.get('id'),
+            label: record.get('label'),
+        }));
+    } finally {
+        await session.close();
+    }
+};
+
+// Gets the last commit SHA that was successfully analyzed for a repository.
+export const getLastAnalyzedSha = async (repoName: string): Promise<string | null> => {
+  const session = getSession();
+  try {
+    // Look for the :Repository node and return its lastAnalyzedSha property.
+    const result = await session.run(
+      'MATCH (r:Repository {name: $repoName}) RETURN r.lastAnalyzedSha AS sha',
+      { repoName }
+    );
+    if (result.records.length === 0) {
+      return null; // No repository node found
+    }
+    return  result.records[0]?.get('sha');
+  } finally {
+    await session.close();
+  }
+};
+
+// Updates or creates the :Repository node with the new commit SHA.
+export const setLastAnalyzedSha = async (repoName: string, sha: string) => {
+  const session = getSession();
+  try {
+    // MERGE finds the :Repository node or creates it if it doesn't exist.
+    // SET then updates the property to the latest SHA.
+    await session.run(
+      'MERGE (r:Repository {name: $repoName}) SET r.lastAnalyzedSha = $sha',
+      { repoName, sha }
+    );
+  } finally {
+    await session.close();
+  }
+};

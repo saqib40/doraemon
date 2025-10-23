@@ -6,14 +6,14 @@ import express from 'express';
 import type { Express, Response, Request, NextFunction } from 'express';
 import cors from 'cors';
 import apiRoutes from './routes/routes.js';
-import { closeDriver, getDriver } from './config/db.js';
+import { closeDriver, initDriver } from './config/db.js';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 
-getDriver(); // initializing the db driver
+initDriver(); // initializing the db driver
 
 app.use(express.json());
 

@@ -7,7 +7,7 @@ const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD;
 // Create a single driver instance
 let driver: Driver;
 
-function getDriver(): Driver {
+function initDriver(): Driver {
     if (!driver) {
         driver = neo4j.driver(NEO4J_URI as string, neo4j.auth.basic(NEO4J_USER as string, NEO4J_PASSWORD as string));
     }
@@ -27,4 +27,4 @@ const getSession = (): Session => {
   return driver.session();
 };
 
-export { getDriver, closeDriver, getSession };
+export { initDriver, closeDriver, getSession };

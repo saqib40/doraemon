@@ -25,3 +25,9 @@ export const fetchDependencies = async (repoName: string, filePath: string): Pro
   return response.data;
 };
 
+export const fetchRecursiveDependents = async (repoName: string, filePath: string): Promise<Node[]> => {
+  const response = await axios.get(`${API_BASE_URL}/files/${repoName}/recursive-dependents`, {
+    params: { filePath },
+  });
+  return response.data;
+};
