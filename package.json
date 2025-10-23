@@ -10,5 +10,8 @@
   ],
   "scripts": {
     "build": "npm run build -ws --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

@@ -1,4 +1,3 @@
-// doraemon/tsconfig.base.json
 {
   "compilerOptions": {
     "target": "ES2022",
