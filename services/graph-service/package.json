@@ -1,7 +1,20 @@
 {
+  "name": "graph-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Microservice responsible for managing the Neo4j dependency graph.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "prestart": "npm run build",
+    "start": "node --require dotenv/config dist/index.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
+  },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "neo4j-driver": "^6.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3"
