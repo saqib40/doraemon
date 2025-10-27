@@ -1,1 +1,23 @@
-{}
+{
+  "name": "analysis-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Microservice worker for analyzing repositories and updating the graph.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "prestart": "npm run build",
+    "start": "node --require dotenv/config dist/index.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
+  },
+  "dependencies": {
+    "@octokit/rest": "^22.0.0",
+    "@octokit/types": "^15.0.1",
+    "axios": "^1.12.2",
+    "fs-extra": "^11.3.2",
+    "redis": "^5.9.0",
+    "simple-git": "^3.28.0",
+    "ts-morph": "^27.0.2"
+  }
+}

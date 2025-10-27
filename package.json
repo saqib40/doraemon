@@ -12,6 +12,8 @@
     "build": "npm run build -ws --if-present"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^24.9.1",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
