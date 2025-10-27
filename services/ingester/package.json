@@ -1,0 +1,21 @@
+{
+    "name": "ingester",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Microservice to receive analysis requests and queue them.",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "build": "rimraf dist && tsc",
+        "prestart": "npm run build",
+        "start": "node --require dotenv/config dist/index.js",
+        "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
+    },
+    "dependencies": {
+        "express": "^5.1.0",
+        "redis": "^5.9.0"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.4"
+    }
+}

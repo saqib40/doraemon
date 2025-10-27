@@ -22,8 +22,11 @@ import { publishDispatchJob, acknowledgeJob } from '../config/redis.js';
 
 // Define the expected structure of the job payload from Redis
 interface AnalysisJobPayload {
-    repoUrl: string;
-    // Add other fields if needed, like PR number, trigger event, etc.
+  repoUrl: string;
+  sha: string;         // The commit SHA that triggered the analysis
+  event: string;       // The GitHub event type (e.g., 'push', 'pull_request')
+  prNumber: number | null; // The PR number, if applicable
+  receivedAt: string;  // ISO string timestamp when the ingester received the request
 }
 
 /**
